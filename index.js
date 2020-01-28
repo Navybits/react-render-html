@@ -16,16 +16,21 @@ function renderNode(node, key) {
 
   var attr = node.attrs.reduce(function (result, attr) {
     var name = convertAttr(attr.name);
-    result[name] = name === 'style' ? styleParser(attr.value) : attr.value;
-    return result;
-  }, {key: key});
+    if (name === 'style') {
+      result[name] = styleParser(attr.value);
+    } else if (name === 'onClick') {
+      result[name] = new Function(attr.value);
+    } else {
+      result[name] = attr.value;
+    } return result;
+  }, { key: key });
 
   if (node.childNodes.length === 0) {
     return React.createElement(node.tagName, attr);
   }
 
   if (node.nodeName === 'script') {
-    attr.dangerouslySetInnerHTML = {__html: node.childNodes[0].value};
+    attr.dangerouslySetInnerHTML = { __html: node.childNodes[0].value };
     return React.createElement('script', attr);
   }
 
